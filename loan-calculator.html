@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent Loan Calculator | 3-Month Payment Schedule</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0B3015;
+            --accent: #008A16;
+            --accent-light: #76D88B;
+            --bg: #F5F7F2;
+            --card: #ffffff;
+            --text: #202720;
+            --text-muted: #667267;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0B3015;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: var(--text);
+        }
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .header h1 {
+            font-family: 'Ubuntu', sans-serif;
+            color: #fff;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.95rem;
+        }
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-size: 1.25rem;
+            border: 2px solid #e0e8e4;
+            border-radius: 12px;
+            font-family: inherit;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .input-group .hint {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+        .btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--accent-light); }
+        .results { display: none; }
+        .results.show { display: block; }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .summary-box {
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .summary-box.highlight {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+        }
+        .summary-box .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Ubuntu', sans-serif;
+        }
+        .summary-box .label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        .schedule-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .schedule-title i { color: var(--accent); }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .schedule-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .schedule-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .schedule-table tr:last-child td { border-bottom: none; }
+        .schedule-table .month { font-weight: 600; color: var(--accent); }
+        .total-row td {
+            font-weight: 700;
+            background: var(--bg);
+            padding: 1rem;
+        }
+        .fee-note {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fff9e6;
+            border-radius: 8px;
+            border-left: 4px solid #e6b800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-calculator"></i> Rent Loan Calculator</h1>
+            <p>Enter your 3-month rent total to see your payment schedule</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="rentInput">Total 3-Month Rent (ETB)</label>
+                <input type="number" id="rentInput" placeholder="e.g. 90000" min="1000" step="1000">
+                <div class="hint">Enter the total rent amount for 3 months</div>
+            </div>
+            <button class="btn" onclick="calculate()">
+                <i class="fa-solid fa-calculator"></i> Calculate Payment Schedule
+            </button>
+        </div>
+
+        <div class="card results" id="results">
+            <h3 class="schedule-title"><i class="fa-solid fa-receipt"></i> Your Loan Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-box">
+                    <div class="value" id="loanAmount">0</div>
+                    <div class="label">Loan Amount (ETB)</div>
+                </div>
+                <div class="summary-box highlight">
+                    <div class="value" id="facilitationFee">0</div>
+                    <div class="label">Facilitation Fee (2% - paid upfront)</div>
+                </div>
+                <div class="summary-box">
+                    <div class="value" id="totalInterest">0</div>
+                    <div class="label">Total Interest (5%/month)</div>
+                </div>
+                <div class="summary-box">
+                    <div class="value" id="totalRepayment">0</div>
+                    <div class="label">Total Repayment</div>
+                </div>
+            </div>
+
+            <h3 class="schedule-title"><i class="fa-solid fa-calendar-days"></i> Monthly Payment Schedule</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Balance</th>
+                        <th>Interest (5%)</th>
+                        <th>Principal</th>
+                        <th>Payment Due</th>
+                    </tr>
+                </thead>
+                <tbody id="scheduleBody"></tbody>
+                <tr class="total-row">
+                    <td colspan="4">Total</td>
+                    <td id="totalPayment">0 ETB</td>
+                </tr>
+            </table>
+
+            <div class="fee-note">
+                <strong>Note:</strong> The facilitation fee (2%) is paid before receiving the loan. You will receive the loan amount minus the facilitation fee, or pay the fee separately depending on your agreement.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(n) {
+            return new Intl.NumberFormat('en-US').format(Math.round(n));
+        }
+
+        function calculate() {
+            const rent = parseFloat(document.getElementById('rentInput').value) || 0;
+            if (rent < 1000) {
+                alert('Please enter a valid rent amount (at least 1,000 ETB)');
+                return;
+            }
+
+            const FACILITATION_RATE = 0.02;
+            const INTEREST_RATE = 0.05;
+            const MONTHS = 3;
+
+            const facilitationFee = rent * FACILITATION_RATE;
+            const monthlyPrincipal = rent / MONTHS;
+
+            let balance = rent;
+            let totalInterest = 0;
+            let totalPayment = 0;
+            const schedule = [];
+
+            for (let m = 1; m <= MONTHS; m++) {
+                const interest = balance * INTEREST_RATE;
+                const payment = monthlyPrincipal + interest;
+                totalInterest += interest;
+                totalPayment += payment;
+                schedule.push({
+                    month: m,
+                    balance: balance,
+                    interest: interest,
+                    principal: monthlyPrincipal,
+                    payment: payment
+                });
+                balance -= monthlyPrincipal;
+            }
+
+            document.getElementById('loanAmount').textContent = formatNumber(rent) + ' ETB';
+            document.getElementById('facilitationFee').textContent = formatNumber(facilitationFee) + ' ETB';
+            document.getElementById('totalInterest').textContent = formatNumber(totalInterest) + ' ETB';
+            document.getElementById('totalRepayment').textContent = formatNumber(totalPayment + facilitationFee) + ' ETB';
+
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = schedule.map(s => `
+                <tr>
+                    <td class="month">Month ${s.month}</td>
+                    <td>${formatNumber(s.balance)} ETB</td>
+                    <td>${formatNumber(s.interest)} ETB</td>
+                    <td>${formatNumber(s.principal)} ETB</td>
+                    <td><strong>${formatNumber(s.payment)} ETB</strong></td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalPayment').textContent = formatNumber(totalPayment) + ' ETB';
+            document.getElementById('results').classList.add('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microfinance Overview | 12-Month Capital Cycle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0B3015;
+            --accent: #008A16;
+            --accent-light: #76D88B;
+            --gold: #c9a227;
+            --bg: #F5F7F2;
+            --card: #ffffff;
+            --text: #202720;
+            --text-muted: #667267;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0B3015;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: var(--text);
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .header h1 {
+            font-family: 'Ubuntu', sans-serif;
+            color: #fff;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .header p { color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            margin-bottom: 1.5rem;
+        }
+        .params {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .param-box {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        .param-box .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .param-box .label { font-size: 0.8rem; color: var(--text-muted); }
+        .flow-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        .flow-step {
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .flow-step i { color: var(--accent); }
+        .flow-arrow { color: var(--text-muted); }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .summary-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+        }
+        .summary-card.gold { background: linear-gradient(135deg, #b8860b 0%, #daa520 100%); }
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'Ubuntu', sans-serif;
+        }
+        .summary-card .label { font-size: 0.85rem; opacity: 0.95; margin-top: 0.25rem; }
+        .table-wrap { overflow-x: auto; }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            font-weight: 600;
+        }
+        .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #eee; }
+        .data-table tr:hover { background: #f8fcf9; }
+        .data-table .month-col { font-weight: 600; color: var(--accent); }
+        .data-table .num { text-align: right; }
+        @media (max-width: 600px) {
+            .summary-cards { grid-template-columns: 1fr; }
+            .params { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fa-solid fa-building-columns"></i> Microfinance Overview</h1>
+            <p>12-month capital cycle simulation • 70M ETB • 3-month loans at 90,000 ETB</p>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-sliders"></i> Model Parameters</h3>
+            <div class="params">
+                <div class="param-box">
+                    <div class="value">70,000,000 ETB</div>
+                    <div class="label">Initial Capital</div>
+                </div>
+                <div class="param-box">
+                    <div class="value">90,000 ETB</div>
+                    <div class="label">Loan Size (3-month rent)</div>
+                </div>
+                <div class="param-box">
+                    <div class="value">2%</div>
+                    <div class="label">Facilitation Fee (upfront, not relent)</div>
+                </div>
+                <div class="param-box">
+                    <div class="value">5%/month</div>
+                    <div class="label">Interest (declining balance)</div>
+                </div>
+            </div>
+
+            <h4 style="margin: 1rem 0 0.5rem; font-size: 0.95rem;">Capital Flow</h4>
+            <div class="flow-diagram">
+                <span class="flow-step"><i class="fa-solid fa-hand-holding-dollar"></i> Lend 90k</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step"><i class="fa-solid fa-coins"></i> Repay (principal + interest)</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step"><i class="fa-solid fa-rotate"></i> Principal + interest relent</span>
+                <span class="flow-arrow">→</span>
+                <span class="flow-step"><i class="fa-solid fa-vault"></i> Fee (2%) stored separately</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-chart-line"></i> 12-Month Totals</h3>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="value" id="totalBorrowers">0</div>
+                    <div class="label">Total People Receiving Loans</div>
+                </div>
+                <div class="summary-card gold">
+                    <div class="value" id="totalProfit">0 ETB</div>
+                    <div class="label">Total Profit (Interest + Fees)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value" id="totalLoans">0</div>
+                    <div class="label">Total Loans Disbursed</div>
+                </div>
+            </div>
+
+            <h4 style="margin: 1.5rem 0 0.75rem;">Monthly Breakdown</h4>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th class="num">New Loans</th>
+                            <th class="num">New Borrowers</th>
+                            <th class="num">Repayments In</th>
+                            <th class="num">Interest Earned</th>
+                            <th class="num">Fees Earned</th>
+                            <th class="num">Lending Pool</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LOAN_SIZE = 90000;
+        const FACILITATION_RATE = 0.02;
+        const INTEREST_RATE = 0.05;
+        const MONTHS = 3;
+        const INITIAL_CAPITAL = 70000000;
+        const SIM_MONTHS = 12;
+
+        function formatNum(n) {
+            return new Intl.NumberFormat('en-US').format(Math.round(n));
+        }
+
+        function getMonthlyRepayments() {
+            const principal = LOAN_SIZE / MONTHS;
+            let balance = LOAN_SIZE;
+            const schedule = [];
+            for (let m = 0; m < MONTHS; m++) {
+                const interest = balance * INTEREST_RATE;
+                schedule.push({ principal, interest, total: principal + interest });
+                balance -= principal;
+            }
+            return schedule;
+        }
+
+        const REPAYMENT_SCHEDULE = getMonthlyRepayments();
+
+        function runSimulation() {
+            let pool = INITIAL_CAPITAL;
+            let totalBorrowers = 0;
+            let totalLoans = 0;
+            let totalInterest = 0;
+            let totalFees = 0;
+
+            const activeLoans = [];
+            const rows = [];
+
+            for (let month = 0; month < SIM_MONTHS; month++) {
+                let repaymentsIn = 0;
+                let interestEarned = 0;
+
+                for (let i = activeLoans.length - 1; i >= 0; i--) {
+                    const loan = activeLoans[i];
+                    const monthIndex = month - loan.disbursedMonth - 1;
+                    if (monthIndex >= 0 && monthIndex < MONTHS) {
+                        const r = REPAYMENT_SCHEDULE[monthIndex];
+                        repaymentsIn += r.total * loan.count;
+                        interestEarned += r.interest * loan.count;
+                    }
+                    if (month - loan.disbursedMonth >= MONTHS) {
+                        activeLoans.splice(i, 1);
+                    }
+                }
+
+                pool += repaymentsIn;
+                totalInterest += interestEarned;
+
+                const newLoans = Math.floor(pool / LOAN_SIZE);
+                const newBorrowers = newLoans;
+                const disbursed = newLoans * LOAN_SIZE;
+                const fees = newLoans * (LOAN_SIZE * FACILITATION_RATE);
+
+                if (newLoans > 0) {
+                    pool -= disbursed;
+                    totalBorrowers += newBorrowers;
+                    totalLoans += newLoans;
+                    totalFees += fees;
+                    activeLoans.push({ disbursedMonth: month, count: newLoans });
+                }
+
+                rows.push({
+                    month: month + 1,
+                    newLoans,
+                    newBorrowers,
+                    repaymentsIn,
+                    interestEarned,
+                    feesEarned: fees,
+                    pool
+                });
+            }
+
+            return { rows, totalBorrowers, totalLoans, totalInterest, totalFees };
+        }
+
+        const sim = runSimulation();
+
+        document.getElementById('totalBorrowers').textContent = formatNum(sim.totalBorrowers);
+        document.getElementById('totalProfit').textContent = formatNum(sim.totalInterest + sim.totalFees) + ' ETB';
+        document.getElementById('totalLoans').textContent = formatNum(sim.totalLoans);
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = sim.rows.map(r => `
+            <tr>
+                <td class="month-col">Month ${r.month}</td>
+                <td class="num">${formatNum(r.newLoans)}</td>
+                <td class="num">${formatNum(r.newBorrowers)}</td>
+                <td class="num">${formatNum(r.repaymentsIn)} ETB</td>
+                <td class="num">${formatNum(r.interestEarned)} ETB</td>
+                <td class="num">${formatNum(r.feesEarned)} ETB</td>
+                <td class="num">${formatNum(r.pool)} ETB</td>
+            </tr>
+        `).join('');
+    </script>
+</body>
+</html>

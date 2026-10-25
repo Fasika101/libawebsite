@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Home page - highest priority -->
+    <url>
+        <loc>https://libadigitals.com/</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <!-- Main company pages -->
+    <url>
+        <loc>https://libadigitals.com/about.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://libadigitals.com/portfolio.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://libadigitals.com/contact.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <!-- Services / Systems pages -->
+    <url>
+        <loc>https://libadigitals.com/systems.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://libadigitals.com/healthcare.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://libadigitals.com/digital-marketing.php</loc>
+        <lastmod>2025-02-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+  
+</urlset>

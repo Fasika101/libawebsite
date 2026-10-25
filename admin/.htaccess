@@ -1,0 +1,3 @@
+# Admin Panel - Allow all PHP files
+# Security is handled by PHP authentication, not .htaccess
+# Remove or comment out this file if you get 500 errors

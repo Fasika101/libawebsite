@@ -1,0 +1,13 @@
+# Liba Digitals - robots.txt
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas from indexing
+Disallow: /admin/
+Disallow: /include/
+
+# Sitemap - update domain when deploying to production
+# Alternative: use sitemap.php for dynamic domain (works on any host)
+Sitemap: https://libadigitals.com/sitemap.xml
