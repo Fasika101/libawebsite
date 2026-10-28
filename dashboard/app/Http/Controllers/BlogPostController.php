@@ -12,9 +12,9 @@ use Illuminate\Support\Str;
 
 class BlogPostController extends Controller
 {
-    public function index(string $channel)
+    public function index(?string $channel = null)
     {
-        $this->assertChannel($channel);
+        $channel = $this->channel($channel);
 
         return view('blog.index', [
             'posts' => BlogPost::where('channel', $channel)->latest()->paginate(12),
@@ -29,9 +29,9 @@ class BlogPostController extends Controller
         ]);
     }
 
-    public function updatePage(Request $request, string $channel)
+    public function updatePage(Request $request, ?string $channel = null)
     {
-        $this->assertChannel($channel);
+        $channel = $this->channel($channel);
 
         if ($channel === 'travel') {
             $data = $request->validate([
@@ -52,9 +52,9 @@ class BlogPostController extends Controller
         return redirect()->route('blog.channel', $channel)->with('status', 'Blog page updated.');
     }
 
-    public function generate(Request $request, GeminiBlogWriter $writer, string $channel)
+    public function generate(Request $request, GeminiBlogWriter $writer, ?string $channel = null)
     {
-        $this->assertChannel($channel);
+        $channel = $this->channel($channel);
 
         $data = $request->validate([
             'idea' => ['required', 'string', 'max:1000'],
@@ -103,9 +103,9 @@ class BlogPostController extends Controller
         return redirect()->route('blog.edit', $post)->with('status', $message);
     }
 
-    public function create(string $channel)
+    public function create(?string $channel = null)
     {
-        $this->assertChannel($channel);
+        $channel = $this->channel($channel);
 
         return view('blog.form', ['post' => new BlogPost(['status' => 'draft', 'channel' => $channel])]);
     }
@@ -215,9 +215,9 @@ class BlogPostController extends Controller
         return 'image/blog/'.$filename;
     }
 
-    private function assertChannel(string $channel): void
+    private function channel(?string $channel): string
     {
-        abort_unless(in_array($channel, ['main', 'travel'], true), 404);
+        return $channel === 'travel' ? 'travel' : 'main';
     }
 
     private function settingValue(string $key, string $default): string

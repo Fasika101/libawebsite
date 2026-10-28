@@ -32,7 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/contact-boxes', [ContactBoxController::class, 'edit'])->name('contact-boxes.edit');
     Route::put('/contact-boxes', [ContactBoxController::class, 'update'])->name('contact-boxes.update');
 
-    Route::redirect('/blog', '/blog/main');
+    Route::get('/blog', [BlogPostController::class, 'index'])->name('blog.index');
+    Route::get('/blog/create', [BlogPostController::class, 'create'])->name('blog.create.main');
     Route::get('/blog/{channel}', [BlogPostController::class, 'index'])->whereIn('channel', ['main', 'travel'])->name('blog.channel');
     Route::put('/blog/{channel}/page', [BlogPostController::class, 'updatePage'])->whereIn('channel', ['main', 'travel'])->name('blog.page');
     Route::post('/blog/{channel}/generate', [BlogPostController::class, 'generate'])->whereIn('channel', ['main', 'travel'])->name('blog.generate');
