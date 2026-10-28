@@ -1,21 +1,34 @@
 @extends('layouts.admin')
 
 @section('title', $post->exists ? 'Edit post' : 'New post')
-@section('heading', $post->exists ? 'Edit post' : 'New post')
+@section('heading', ($post->exists ? 'Edit post' : 'New post').($post->channel === 'travel' ? ' — Liba Travel' : ' — Main site'))
 
 @section('content')
-<div class="mb-3"><a href="{{ route('blog.index') }}">&larr; All posts</a></div>
+<div class="mb-3"><a href="{{ route('blog.channel', $post->channel ?: 'main') }}">&larr; {{ $post->channel === 'travel' ? 'Travel posts' : 'Main site posts' }}</a></div>
 <div class="card shadow-sm border-0">
     <div class="card-body">
         <form method="POST" action="{{ $post->exists ? route('blog.update', $post) : route('blog.store') }}" enctype="multipart/form-data" class="row g-3">
             @csrf
             @if ($post->exists) @method('PUT') @endif
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <label class="form-label" for="title">Title</label>
                 <input id="title" name="title" value="{{ old('title', $post->title) }}" class="form-control @error('title') is-invalid @enderror" required>
                 @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <label class="form-label" for="channel">Site</label>
+                @if ($post->exists)
+                    <select id="channel" name="channel" class="form-select @error('channel') is-invalid @enderror">
+                        <option value="main" @selected(old('channel', $post->channel ?: 'main') === 'main')>Main site</option>
+                        <option value="travel" @selected(old('channel', $post->channel) === 'travel')>Liba Travel</option>
+                    </select>
+                @else
+                    <input type="hidden" name="channel" value="{{ $post->channel }}">
+                    <input id="channel" class="form-control" value="{{ $post->channel === 'travel' ? 'Liba Travel' : 'Main site' }}" disabled>
+                @endif
+                @error('channel')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-3">
                 <label class="form-label" for="status">Status</label>
                 <select id="status" name="status" class="form-select">
                     <option value="draft" @selected(old('status', $post->status) === 'draft')>Draft</option>
@@ -34,9 +47,9 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="cover_image">Cover image</label>
-                <input id="cover_image" name="cover_image" type="file" accept="image/jpeg,image/png,image/webp" class="form-control @error('cover_image') is-invalid @enderror">
+                <input id="cover_image" name="cover_image" type="file" accept="image/*" class="form-control @error('cover_image') is-invalid @enderror">
                 @error('cover_image')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">JPG, PNG, or WebP. Up to 3 MB.</div>
+                <div class="form-text">JPG, PNG, GIF, or WebP. Up to 8 MB.</div>
             </div>
             @if ($post->cover_image)
                 <div class="col-md-6">

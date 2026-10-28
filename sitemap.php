@@ -22,6 +22,7 @@ $pages = [
     ['loc' => $baseUrl . '/healthcare.php', 'priority' => '0.8', 'changefreq' => 'monthly'],
     ['loc' => $baseUrl . '/digital-marketing.php', 'priority' => '0.8', 'changefreq' => 'monthly'],
     ['loc' => $baseUrl . '/blog.php', 'priority' => '0.7', 'changefreq' => 'weekly'],
+    ['loc' => $baseUrl . '/travel/blog.php', 'priority' => '0.7', 'changefreq' => 'weekly'],
     // Supporting
     ['loc' => $baseUrl . '/contact_success.php', 'priority' => '0.3', 'changefreq' => 'yearly'],
 ];

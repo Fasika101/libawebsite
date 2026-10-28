@@ -18,6 +18,7 @@ return new class extends Migration
                 $table->longText('body');
                 $table->string('cover_image')->nullable();
                 $table->enum('status', ['draft', 'published'])->default('draft');
+                $table->string('channel', 20)->default('main')->index();
                 $table->timestamp('published_at')->nullable();
                 $table->timestamps();
             });

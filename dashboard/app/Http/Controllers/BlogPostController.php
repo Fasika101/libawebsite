@@ -5,43 +5,64 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use App\Models\SiteSetting;
 use App\Services\GeminiBlogWriter;
+use App\Support\UploadedImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 class BlogPostController extends Controller
 {
-    public function index()
+    public function index(string $channel)
     {
+        $this->assertChannel($channel);
+
         return view('blog.index', [
-            'posts' => BlogPost::latest()->paginate(12),
-            'blogHeading' => $this->settingValue('blog_heading', 'Blog'),
-            'blogIntro' => $this->settingValue('blog_intro', 'Notes and updates from Liba Digitals.'),
+            'posts' => BlogPost::where('channel', $channel)->latest()->paginate(12),
+            'channel' => $channel,
+            'pageHeading' => $channel === 'travel'
+                ? $this->settingValue('travel_blog_heading', 'Travel notes')
+                : $this->settingValue('blog_heading', 'Blog'),
+            'pageIntro' => $channel === 'travel'
+                ? $this->settingValue('travel_blog_intro', 'Flight, hotel, and travel notes from Liba Travel in Addis Ababa.')
+                : $this->settingValue('blog_intro', 'Notes and updates from Liba Digitals.'),
             'hasApiKey' => $this->apiKey() !== null,
         ]);
     }
 
-    public function updatePage(Request $request)
+    public function updatePage(Request $request, string $channel)
     {
-        $data = $request->validate([
-            'blog_heading' => ['required', 'string', 'max:120'],
-            'blog_intro' => ['nullable', 'string', 'max:500'],
-        ]);
+        $this->assertChannel($channel);
 
-        $this->saveSetting('blog_heading', 'Blog page heading', $data['blog_heading'], 20);
-        $this->saveSetting('blog_intro', 'Blog page introduction', $data['blog_intro'] ?? '', 21);
+        if ($channel === 'travel') {
+            $data = $request->validate([
+                'page_heading' => ['required', 'string', 'max:120'],
+                'page_intro' => ['nullable', 'string', 'max:500'],
+            ]);
+            $this->saveSetting('travel_blog_heading', 'Travel blog heading', $data['page_heading'], 22);
+            $this->saveSetting('travel_blog_intro', 'Travel blog introduction', $data['page_intro'] ?? '', 23);
+        } else {
+            $data = $request->validate([
+                'page_heading' => ['required', 'string', 'max:120'],
+                'page_intro' => ['nullable', 'string', 'max:500'],
+            ]);
+            $this->saveSetting('blog_heading', 'Blog page heading', $data['page_heading'], 20);
+            $this->saveSetting('blog_intro', 'Blog page introduction', $data['page_intro'] ?? '', 21);
+        }
 
-        return redirect()->route('blog.index')->with('status', 'Blog page updated on the site.');
+        return redirect()->route('blog.channel', $channel)->with('status', 'Blog page updated.');
     }
 
-    public function generate(Request $request, GeminiBlogWriter $writer)
+    public function generate(Request $request, GeminiBlogWriter $writer, string $channel)
     {
+        $this->assertChannel($channel);
+
         $data = $request->validate([
             'idea' => ['required', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', 'in:draft,published'],
             'api_key' => ['nullable', 'string', 'max:300'],
         ]);
+        $data['channel'] = $channel;
 
         if ($request->filled('api_key')) {
             $this->saveSetting('gemini_api_key', 'Google Gemini API key', Crypt::encryptString(trim($data['api_key'])), 30);
@@ -57,7 +78,7 @@ class BlogPostController extends Controller
         }
 
         try {
-            $draft = $writer->write($data['idea'], $data['notes'] ?? null, $apiKey);
+            $draft = $writer->write($data['idea'], $data['notes'] ?? null, $apiKey, $data['channel']);
         } catch (\Throwable $e) {
             return back()
                 ->withInput($request->except('api_key'))
@@ -70,19 +91,23 @@ class BlogPostController extends Controller
             'excerpt' => $this->excerpt($draft['excerpt'], $draft['body']),
             'body' => $draft['body'],
             'status' => $data['status'],
+            'channel' => $data['channel'],
             'published_at' => $data['status'] === 'published' ? now() : null,
         ]);
 
+        $place = $data['channel'] === 'travel' ? 'Liba Travel' : 'the main site';
         $message = $data['status'] === 'published'
-            ? 'The post was written and published on the site. You can still edit it here.'
+            ? "The post was written and published on {$place}. You can still edit it here."
             : 'The post was written and saved as a draft.';
 
         return redirect()->route('blog.edit', $post)->with('status', $message);
     }
 
-    public function create()
+    public function create(string $channel)
     {
-        return view('blog.form', ['post' => new BlogPost(['status' => 'draft'])]);
+        $this->assertChannel($channel);
+
+        return view('blog.form', ['post' => new BlogPost(['status' => 'draft', 'channel' => $channel])]);
     }
 
     public function store(Request $request)
@@ -96,7 +121,7 @@ class BlogPostController extends Controller
 
         BlogPost::create($data);
 
-        return redirect()->route('blog.index')->with('status', 'Blog post created.');
+        return redirect()->route('blog.channel', $data['channel'])->with('status', 'Blog post created.');
     }
 
     public function edit(BlogPost $post)
@@ -139,7 +164,7 @@ class BlogPostController extends Controller
         $this->deleteCover($post->cover_image);
         $post->delete();
 
-        return redirect()->route('blog.index')->with('status', 'Blog post deleted.');
+        return redirect()->route('blog.channel', $post->channel ?: 'main')->with('status', 'Blog post deleted.');
     }
 
     private function validated(Request $request): array
@@ -149,7 +174,8 @@ class BlogPostController extends Controller
             'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string', 'max:50000'],
             'status' => ['required', 'in:draft,published'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+            'channel' => ['required', 'in:main,travel'],
+            'cover_image' => UploadedImage::rules(),
         ]);
     }
 
@@ -184,15 +210,14 @@ class BlogPostController extends Controller
         }
 
         $directory = dirname(base_path()).DIRECTORY_SEPARATOR.'image'.DIRECTORY_SEPARATOR.'blog';
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $extension = strtolower($request->file('cover_image')->getClientOriginalExtension());
-        $filename = Str::uuid()->toString().'.'.$extension;
-        $request->file('cover_image')->move($directory, $filename);
+        $filename = UploadedImage::move($request->file('cover_image'), $directory);
 
         return 'image/blog/'.$filename;
+    }
+
+    private function assertChannel(string $channel): void
+    {
+        abort_unless(in_array($channel, ['main', 'travel'], true), 404);
     }
 
     private function settingValue(string $key, string $default): string

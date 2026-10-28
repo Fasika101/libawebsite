@@ -49,7 +49,10 @@
             <a class="nav-link px-3 py-2 {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-grid me-2"></i>Overview</a>
             <a class="nav-link px-3 py-2 {{ request()->routeIs('contacts.*') ? 'active' : '' }}" href="{{ route('contacts.index') }}"><i class="bi bi-inbox me-2"></i>Contact inbox</a>
             <a class="nav-link px-3 py-2 {{ request()->routeIs('contact-boxes.*') ? 'active' : '' }}" href="{{ route('contact-boxes.edit') }}"><i class="bi bi-telephone me-2"></i>Contact boxes</a>
-            <a class="nav-link px-3 py-2 {{ request()->routeIs('blog.*') ? 'active' : '' }}" href="{{ route('blog.index') }}"><i class="bi bi-journal-text me-2"></i>Blog posts</a>
+            <a class="nav-link px-3 py-2 {{ request()->route('channel') === 'main' || (request()->routeIs('blog.edit') && optional(request()->route('post'))->channel !== 'travel') ? 'active' : '' }}" href="{{ route('blog.channel', 'main') }}"><i class="bi bi-journal-text me-2"></i>Main blog</a>
+            <a class="nav-link px-3 py-2 {{ request()->route('channel') === 'travel' || (request()->routeIs('blog.edit') && optional(request()->route('post'))->channel === 'travel') ? 'active' : '' }}" href="{{ route('blog.channel', 'travel') }}"><i class="bi bi-airplane me-2"></i>Travel blog</a>
+            <a class="nav-link px-3 py-2 {{ request()->routeIs('visits.*') ? 'active' : '' }}" href="{{ route('visits.index') }}"><i class="bi bi-geo-alt me-2"></i>Visitors</a>
+            <a class="nav-link px-3 py-2 {{ request()->routeIs('branding.*') ? 'active' : '' }}" href="{{ route('branding.edit') }}"><i class="bi bi-image me-2"></i>Logo and favicon</a>
             <a class="nav-link px-3 py-2" href="{{ config('liba.public_site_url') }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-2"></i>View website</a>
         </nav>
         <form method="POST" action="{{ route('logout') }}" class="mt-4 px-2">

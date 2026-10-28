@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://libadigitals.com/travel/sitemap.xml

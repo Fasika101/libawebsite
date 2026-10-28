@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Liba Travel  Ethiopia travel agency</title>
+  <desc id="desc">Flight tickets, hotel booking and accommodations in Addis Ababa by Liba Digitals Trading PLC</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#082810"/>
+      <stop offset="55%" stop-color="#0a3520"/>
+      <stop offset="100%" stop-color="#051a0a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="980" cy="120" r="220" fill="#3ddc68" opacity="0.12"/>
+  <rect x="88" y="88" width="14" height="56" rx="2" fill="#3ddc68"/>
+  <text x="120" y="200" fill="#ffffff" font-family="system-ui,Segoe UI,sans-serif" font-size="72" font-weight="700" letter-spacing="-2">liba travel</text>
+  <text x="120" y="280" fill="#3ddc68" font-family="system-ui,Segoe UI,sans-serif" font-size="28" font-weight="600" letter-spacing="4">FLIGHTS � HOTELS � FARES</text>
+  <text x="120" y="360" fill="#ffffff" opacity="0.85" font-family="system-ui,Segoe UI,sans-serif" font-size="32" font-weight="400">Addis Ababa, Ethiopia</text>
+  <text x="120" y="420" fill="#ffffff" opacity="0.55" font-family="system-ui,Segoe UI,sans-serif" font-size="24">Liba Digitals Trading PLC</text>
+  <rect x="88" y="480" width="420" height="4" rx="2" fill="#3ddc68" opacity="0.5"/>
+  <text x="120" y="540" fill="#ffffff" opacity="0.7" font-family="ui-monospace,monospace" font-size="22">travel@libadigitals.com � +251 942 81 6768</text>
+</svg>

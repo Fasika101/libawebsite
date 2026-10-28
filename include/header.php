@@ -41,5 +41,5 @@ $fullPageImage = (strpos($pageImage, 'http') === 0) ? $pageImage : $baseUrl . '/
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/liba-theme.css">
-    <link rel="icon" href="image/logo.jpg">
+    <link rel="icon" href="<?php echo htmlspecialchars(site_setting('main_favicon')); ?>">
 </head>

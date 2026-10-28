@@ -1,9 +1,10 @@
+<?php require_once __DIR__ . '/site.php'; ?>
 <div class="section-footer bg-footer">
     <div class="hero-container">
         <div class="d-flex flex-column gspace-3">
             <div class="d-flex flex-md-row flex-column align-items-center justify-content-md-between justify-content-center gspace-3">
                 <div class="logo-container footer-logo">
-                    <img src="image/footer_logo.png" alt="Liba Digitals Logo" class="img-fluid">
+                    <img src="<?php echo htmlspecialchars(site_setting('main_footer_logo')); ?>" alt="Liba Digitals Logo" class="img-fluid">
                 </div>
                 <div class="d-flex flex-row flex-wrap gspace-1 align-items-center justify-content-center">
                     <a href="index.php" class="quick-link">Home</a>

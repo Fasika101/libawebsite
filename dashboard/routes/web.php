@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\BlogPostController;
+use App\Http\Controllers\BrandingController;
 use App\Http\Controllers\ContactBoxController;
 use App\Http\Controllers\ContactSubmissionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,10 +32,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/contact-boxes', [ContactBoxController::class, 'edit'])->name('contact-boxes.edit');
     Route::put('/contact-boxes', [ContactBoxController::class, 'update'])->name('contact-boxes.update');
 
-    Route::get('/blog', [BlogPostController::class, 'index'])->name('blog.index');
-    Route::put('/blog/page', [BlogPostController::class, 'updatePage'])->name('blog.page');
-    Route::post('/blog/generate', [BlogPostController::class, 'generate'])->name('blog.generate');
-    Route::get('/blog/create', [BlogPostController::class, 'create'])->name('blog.create');
+    Route::redirect('/blog', '/blog/main');
+    Route::get('/blog/{channel}', [BlogPostController::class, 'index'])->whereIn('channel', ['main', 'travel'])->name('blog.channel');
+    Route::put('/blog/{channel}/page', [BlogPostController::class, 'updatePage'])->whereIn('channel', ['main', 'travel'])->name('blog.page');
+    Route::post('/blog/{channel}/generate', [BlogPostController::class, 'generate'])->whereIn('channel', ['main', 'travel'])->name('blog.generate');
+    Route::get('/blog/{channel}/create', [BlogPostController::class, 'create'])->whereIn('channel', ['main', 'travel'])->name('blog.create');
+
+    Route::get('/visitors', [VisitController::class, 'index'])->name('visits.index');
+    Route::delete('/visitors', [VisitController::class, 'destroy'])->name('visits.destroy');
+
+    Route::get('/branding', [BrandingController::class, 'edit'])->name('branding.edit');
+    Route::post('/branding', [BrandingController::class, 'update'])->name('branding.update');
     Route::post('/blog', [BlogPostController::class, 'store'])->name('blog.store');
     Route::get('/blog/{post}/edit', [BlogPostController::class, 'edit'])->name('blog.edit');
     Route::put('/blog/{post}', [BlogPostController::class, 'update'])->name('blog.update');

@@ -4,7 +4,7 @@
         <nav class="navbar navbar-expand-xl" aria-label="Primary">
             <div class="navbar-container">
                 <div class="logo-container">
-                    <a class="navbar-brand" href="index.php"><img src="image/new_logo.png" alt="Liba Digitals" class="img-fluid"></a>
+                    <a class="navbar-brand" href="index.php"><img src="<?php echo htmlspecialchars(site_setting('main_logo')); ?>" alt="Liba Digitals" class="img-fluid"></a>
                 </div>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">

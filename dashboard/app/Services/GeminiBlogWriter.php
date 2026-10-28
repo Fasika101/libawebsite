@@ -7,10 +7,10 @@ use RuntimeException;
 
 class GeminiBlogWriter
 {
-    public function write(string $idea, ?string $notes, string $apiKey): array
+    public function write(string $idea, ?string $notes, string $apiKey, string $channel = 'main'): array
     {
         $model = config('liba.gemini_model', 'gemini-2.5-flash');
-        $prompt = $this->prompt($idea, $notes);
+        $prompt = $this->prompt($idea, $notes, $channel === 'travel' ? 'travel' : 'main');
 
         $response = Http::timeout(90)
             ->withHeaders(['x-goog-api-key' => $apiKey])
@@ -53,12 +53,15 @@ class GeminiBlogWriter
         ];
     }
 
-    private function prompt(string $idea, ?string $notes): string
+    private function prompt(string $idea, ?string $notes, string $channel): string
     {
         $notes = trim((string) $notes);
+        $about = $channel === 'travel'
+            ? 'Liba Travel, the travel desk of Liba Digitals Trading PLC in Addis Ababa, Ethiopia. It books flight tickets, hotels, and accommodations.'
+            : 'Liba Digitals, a digital agency in Addis Ababa, Ethiopia. The company builds custom software, healthcare systems, and digital marketing work.';
 
         return <<<TEXT
-Write one blog post for Liba Digitals, a digital agency in Addis Ababa, Ethiopia. The company builds custom software, healthcare systems, and digital marketing work.
+Write one blog post for {$about}
 
 Idea: {$idea}
 Extra direction: {$notes}

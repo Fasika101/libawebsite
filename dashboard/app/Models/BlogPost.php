@@ -13,6 +13,7 @@ class BlogPost extends Model
         'body',
         'cover_image',
         'status',
+        'channel',
         'published_at',
     ];
 
@@ -26,5 +27,12 @@ class BlogPost extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
+    }
+
+    public function publicPath(): string
+    {
+        $page = $this->channel === 'travel' ? '/travel/blog-post.php' : '/blog-post.php';
+
+        return $page.'?slug='.$this->slug;
     }
 }
