@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\SiteSetting;
 use App\Support\UploadedImage;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 
 class BrandingController extends Controller
 {
@@ -46,12 +45,16 @@ class BrandingController extends Controller
                 continue;
             }
 
-            if (! $request->hasFile($key)) {
+            if (! $request->hasFile($key) && ! $request->filled($key.'_data')) {
                 continue;
             }
 
             $this->deleteUploaded($key, $this->current($key));
-            $this->saveSetting($key, $this->storeFile($request->file($key), $key));
+            $stored = UploadedImage::storeRequest($request, $key, $this->directoryFor($key));
+            if ($stored === null) {
+                continue;
+            }
+            $this->saveSetting($key, $this->saveStoredPath($key, $stored));
             $changed = true;
         }
 
@@ -132,14 +135,20 @@ class BrandingController extends Controller
         );
     }
 
-    private function storeFile(UploadedFile $file, string $key): string
+    private function directoryFor(string $key): string
     {
-        $travel = str_starts_with($key, 'travel_');
-        $folder = $travel ? 'travel'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'brand' : 'image'.DIRECTORY_SEPARATOR.'brand';
-        $directory = dirname(base_path()).DIRECTORY_SEPARATOR.$folder;
-        $filename = UploadedImage::move($file, $directory, $key);
+        $folder = str_starts_with($key, 'travel_')
+            ? 'travel'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'brand'
+            : 'image'.DIRECTORY_SEPARATOR.'brand';
 
-        return $travel ? 'assets/brand/'.$filename : 'image/brand/'.$filename;
+        return dirname(base_path()).DIRECTORY_SEPARATOR.$folder;
+    }
+
+    private function saveStoredPath(string $key, string $filename): string
+    {
+        return str_starts_with($key, 'travel_')
+            ? 'assets/brand/'.$filename
+            : 'image/brand/'.$filename;
     }
 
     private function deleteUploaded(string $key, string $path): void

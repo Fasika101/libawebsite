@@ -149,9 +149,10 @@ class BlogPostController extends Controller
             $data['cover_image'] = null;
         }
 
-        if ($request->hasFile('cover_image')) {
+        $cover = $this->storeCover($request);
+        if ($cover !== null) {
             $this->deleteCover($post->cover_image);
-            $data['cover_image'] = $this->storeCover($request);
+            $data['cover_image'] = $cover;
         }
 
         $post->update($data);
@@ -205,12 +206,15 @@ class BlogPostController extends Controller
 
     private function storeCover(Request $request): ?string
     {
-        if (! $request->hasFile('cover_image')) {
+        if (! $request->hasFile('cover_image') && ! $request->filled('cover_image_data')) {
             return null;
         }
 
         $directory = dirname(base_path()).DIRECTORY_SEPARATOR.'image'.DIRECTORY_SEPARATOR.'blog';
-        $filename = UploadedImage::move($request->file('cover_image'), $directory);
+        $filename = UploadedImage::storeRequest($request, 'cover_image', $directory);
+        if ($filename === null) {
+            return null;
+        }
 
         return 'image/blog/'.$filename;
     }

@@ -77,5 +77,54 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('form[enctype="multipart/form-data"]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            const inputs = Array.from(form.querySelectorAll('input[type="file"]')).filter(function (input) {
+                return input.files && input.files.length > 0;
+            });
+            if (!inputs.length) {
+                return;
+            }
+            event.preventDefault();
+            Promise.all(inputs.map(function (input) {
+                const file = input.files[0];
+                if (file.size > 8 * 1024 * 1024) {
+                    return Promise.reject(new Error('Use an image under 8 MB.'));
+                }
+                return new Promise(function (resolve, reject) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        appendField(form, input.name + '_data', reader.result);
+                        appendField(form, input.name + '_name', file.name);
+                        resolve();
+                    };
+                    reader.onerror = function () {
+                        reject(new Error('Could not read that image.'));
+                    };
+                    reader.readAsDataURL(file);
+                });
+            })).then(function () {
+                inputs.forEach(function (input) {
+                    input.value = '';
+                });
+                form.submit();
+            }).catch(function (error) {
+                window.alert(error.message || 'Could not read that image.');
+            });
+        });
+    });
+
+    function appendField(form, name, value) {
+        let field = form.querySelector('input[type="hidden"][name="' + name + '"]');
+        if (!field) {
+            field = document.createElement('input');
+            field.type = 'hidden';
+            field.name = name;
+            form.appendChild(field);
+        }
+        field.value = value;
+    }
+</script>
 </body>
 </html>

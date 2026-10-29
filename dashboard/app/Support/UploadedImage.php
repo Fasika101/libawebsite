@@ -18,6 +18,10 @@ class UploadedImage
                 }
 
                 if (! $value->isValid()) {
+                    if (is_string(request()->input($attribute.'_data')) && request()->input($attribute.'_data') !== '') {
+                        return;
+                    }
+
                     $fail(self::uploadError($value));
 
                     return;
@@ -79,10 +83,67 @@ class UploadedImage
         return $filename;
     }
 
+    public static function storeRequest(\Illuminate\Http\Request $request, string $key, string $directory): ?string
+    {
+        $file = $request->file($key);
+        if ($file instanceof UploadedFile && $file->isValid()) {
+            return self::move($file, $directory, $key);
+        }
+
+        $payload = $request->input($key.'_data');
+        if (! is_string($payload) || $payload === '') {
+            return null;
+        }
+
+        return self::storeDecoded($payload, (string) $request->input($key.'_name', 'image.png'), $directory, $key);
+    }
+
+    public static function storeDecoded(string $payload, string $originalName, string $directory, string $attribute): string
+    {
+        if (str_contains($payload, ',')) {
+            $payload = substr($payload, strpos($payload, ',') + 1);
+        }
+
+        $binary = base64_decode($payload, true);
+        if ($binary === false || $binary === '' || strlen($binary) > 8 * 1024 * 1024) {
+            throw ValidationException::withMessages([
+                $attribute => 'Use a JPG, PNG, GIF, or WebP image under 8 MB.',
+            ]);
+        }
+
+        $scratch = storage_path('framework/uploads');
+        if (! is_dir($scratch) && ! mkdir($scratch, 0755, true) && ! is_dir($scratch)) {
+            throw ValidationException::withMessages([
+                $attribute => 'The server could not prepare a folder for the image.',
+            ]);
+        }
+
+        $temporary = $scratch.DIRECTORY_SEPARATOR.\Illuminate\Support\Str::uuid()->toString();
+        if (file_put_contents($temporary, $binary) === false) {
+            throw ValidationException::withMessages([
+                $attribute => 'The server could not write the image. The storage folder needs to be writable.',
+            ]);
+        }
+
+        $upload = new UploadedFile($temporary, $originalName !== '' ? $originalName : 'image.png', null, UPLOAD_ERR_OK, true);
+        if (! self::readable($upload, str_contains($attribute, 'favicon'))) {
+            @unlink($temporary);
+            throw ValidationException::withMessages([
+                $attribute => 'Use a JPG, PNG, GIF, or WebP image.',
+            ]);
+        }
+
+        return self::move($upload, $directory, $attribute);
+    }
+
     private static function readable(UploadedFile $file, bool $icon): bool
     {
         $extension = strtolower($file->getClientOriginalExtension());
         if ($icon && $extension === 'ico') {
+            return true;
+        }
+
+        if (self::isWebp($file)) {
             return true;
         }
 
@@ -98,6 +159,22 @@ class UploadedImage
         }
 
         return @getimagesize($file->getPathname()) !== false;
+    }
+
+    private static function isWebp(UploadedFile $file): bool
+    {
+        $handle = @fopen($file->getPathname(), 'rb');
+        if ($handle === false) {
+            return false;
+        }
+
+        $header = fread($handle, 12);
+        fclose($handle);
+
+        return is_string($header)
+            && strlen($header) >= 12
+            && substr($header, 0, 4) === 'RIFF'
+            && substr($header, 8, 4) === 'WEBP';
     }
 
     private static function uploadError(UploadedFile $file): string
